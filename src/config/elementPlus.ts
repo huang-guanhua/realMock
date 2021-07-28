@@ -5,7 +5,10 @@ import {
     ElMenu,
     ElMenuItem,
     ElRow,
-    ElCol
+    ElCol,
+    ElForm,
+    ElFormItem,
+    ElOption,
 } from 'element-plus';
 
 export const eleComponents = [
@@ -15,5 +18,8 @@ export const eleComponents = [
     ElMenu,
     ElMenuItem,
     ElRow,
-    ElCol
+    ElCol,
+    ElForm,
+    ElFormItem,
+    ElOption,
 ]
