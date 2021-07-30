@@ -1,6 +1,12 @@
 # realMock
 更贴合业务的真实的数据模拟
 
+```
+// run project
+npm i
+npm run dev
+```
+
 ### 技术 Vue 3 + TypeScript + Vite
 
 # Vue 3 + Typescript + Vite
