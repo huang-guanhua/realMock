@@ -9,6 +9,7 @@ import {
     ElForm,
     ElFormItem,
     ElOption,
+    ElMessage
 } from 'element-plus';
 
 export const eleComponents = [
@@ -22,4 +23,5 @@ export const eleComponents = [
     ElForm,
     ElFormItem,
     ElOption,
+    ElMessage
 ]

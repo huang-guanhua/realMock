@@ -3,9 +3,22 @@
     <div class="pathName">
       <div class="pathName-title">接口路径</div>
       <div class="mockListPath">
-        <div v-for="item in pathData" :key="item.path" class="mockListPath-item" @click="showData(item)">
-          <div class="name">{{item.name}}</div>
+        <div 
+          v-for="(item,i) in pathData.list" 
+          :class="{
+            'mockListPath-item': true,
+            'active': idx === i 
+          }"
+          :key="item.path"
+          @click="showData(item.mockData, i)"
+        >
+          <div class="name">{{item.name || 'null'}}</div>
           <div class="path"><span :class="item.method.toUpperCase()">{{item.method.toUpperCase()}}</span>{{item.path}}</div>
+        </div>
+        <div class="page">
+          <div @click="getMore('pre')">上一页</div>
+          <div>总数:{{pathData.total}}</div>
+          <div  @click="getMore('next')">下一页</div>
         </div>
       </div>
     </div>
@@ -16,37 +29,71 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
+import { defineComponent, ref, onMounted, reactive } from 'vue'
 import JsonView from '../../components/highlight.vue'
+import { getList } from '../../api/list'
+import { ElMessage } from 'element-plus'
 export default defineComponent({
     components:{
       JsonView
     },
     setup() {
       const str = ref('');
-      const pathData = [
-        {
-          path: '/api/list',
-          method:'get',
-          name:'列表接口请求',
-          mockData:{code:1,message:'sucess',data:[{id:1,price:'17',name:'乔布'},{id:2,price:'18',name:'船长'}]}
-        },
-        {
-          path: '/api/info',
-          method:'post',
-          name:'商品详情',
-          mockData:{code:1,message:'sucess',data:{id:4,price:'22',name:'亚索',origin:'广州'}}
-        }
-      ]
+      const idx = ref(0);
+      const pathData = reactive({
+        list: [],
+        current:1,
+        size:10,
+        total:0
+      })
 
-      function showData(obj:Object){
+      function showData(obj:object, index:number){
         str.value = JSON.stringify(obj, null, 2);
+        idx.value = index;
       }
+
+      function getMockList(param = {}){
+        getList(param).then((res:any) => {
+          pathData.list = res.data;
+          pathData.total = res.total;
+          pathData.current = res.current;
+          pathData.size = res.size;
+        })
+      }
+
+      function getMore(type:string){
+        if(type === 'pre'){
+          if(pathData.current <= 1){
+            ElMessage.warning('当前是第一页')
+          }else {
+            getMockList({
+              current: pathData.current - 1,
+              size: pathData.size
+            })
+          }
+        }else{
+          const maxSzie = (pathData?.total / pathData?.size) || 0;
+          if(pathData.current <= maxSzie){
+            getMockList({
+              current: pathData.current + 1,
+              size: pathData.size
+            })
+          }else{
+            ElMessage.warning('已经没有了')
+          }
+        }
+      }
+
+      onMounted(() => {
+        getMockList();
+      })
 
       return {
         pathData,
         showData,
-        str
+        getMore,
+        str,
+        idx
       }
     },
 })
@@ -69,6 +116,16 @@ export default defineComponent({
     }
 
     .mockListPath{
+
+      .page{
+        display: flex;
+        justify-content: space-around;
+
+        div{
+          cursor: pointer;
+        }
+      }
+
       .mockListPath-item{
         cursor: pointer;
         padding: 4px 10px;
@@ -90,10 +147,17 @@ export default defineComponent({
           .POST{
             background-color: #409EFF;
           }
+          .PUT{
+            background-color: #c2ba77;
+          }
         }
         .name{
           font-size: 16px;
           color:rgb(0, 0, 0);
+        }
+
+        &.active{
+          background-color: #E4E7ED;
         }
       }
     }
